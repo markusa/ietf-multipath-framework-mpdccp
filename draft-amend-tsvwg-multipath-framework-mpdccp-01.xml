@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY I-D.ietf-quic-http SYSTEM "https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-ietf-quic-http-18.xml">
+<!ENTITY I-D.amend-tsvwg-multipath-dccp SYSTEM "https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-amend-tsvwg-multipath-dccp-01.xml">
+<!ENTITY I-D.amend-tsvwg-dccp-udp-header-conversion SYSTEM "https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-amend-tsvwg-dccp-udp-header-conversion-01.xml">
+<!ENTITY I-D.lhwxz-hybrid-access-network-architecture SYSTEM "https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-lhwxz-hybrid-access-network-architecture-02.xml">
+<!ENTITY I-D.muley-network-based-bonding-hybrid-access SYSTEM "https://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.draft-muley-network-based-bonding-hybrid-access-03.xml">
+<!ENTITY RFC6733 SYSTEM "https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6733.xml">
+<!ENTITY RFC6824 SYSTEM "https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6824.xml">
+]>
+<rfc category="info" docName="draft-amend-tsvwg-multipath-framework-mpdccp-01" submissionType="IETF">
+  <?rfc compact="yes"?>
+  <?rfc text-list-symbols="o*+-"?>
+  <?rfc subcompact="no"?>
+  <?rfc sortrefs="yes"?>
+  <?rfc symrefs="yes"?>
+  <?rfc strict="yes"?>
+  <?rfc toc="yes"?>
+  <front>
+    <title abbrev="Multipath framework for UDP">A multipath framework for UDP traffic over heterogeneous access networks</title>
+    <author fullname="Markus Amend" initials="M." surname="Amend">
+      <organization>Deutsche Telekom</organization>
+      <address>
+        <postal>
+          <street>Deutsche-Telekom-Allee 7</street>
+          <street>64295 Darmstadt</street>
+          <street>Germany</street>
+        </postal>
+        <email>Markus.Amend@telekom.de</email>
+      </address>
+    </author>
+    <author fullname="Eckard Bogenfeld" initials="E." surname="Bogenfeld">
+      <organization>Deutsche Telekom</organization>
+      <address>
+        <postal>
+          <street>Deutsche-Telekom-Allee 7</street>
+          <street>64295 Darmstadt</street>
+          <street>Germany</street>
+        </postal>
+        <email>Eckard.Bogenfeld@telekom.de</email>
+      </address>
+    </author>
+    <author fullname="Anna Brunstrom" initials="A." surname="Brunstrom">
+      <organization>Karlstad University</organization>
+      <address>
+        <postal>
+          <street>Universitetsgatan 2</street>
+          <street>651 88 Karlstad</street>
+          <street>Sweden</street>
+        </postal>
+        <email>anna.brunstrom@kau.se</email>
+      </address>
+    </author>
+    <author fullname="Andreas Kassler" initials="A." surname="Kassler">
+      <organization>Karlstad University</organization>
+      <address>
+        <postal>
+          <street>Universitetsgatan 2</street>
+          <street>651 88 Karlstad</street>
+          <street>Sweden</street>
+        </postal>
+        <email>andreas.kassler@kau.se</email>
+      </address>
+    </author>
+    <author fullname="Veselin Rakocevic" initials="V." surname="Rakocevic">
+      <organization>City University of London</organization>
+      <address>
+        <postal>
+          <street>Northampton Square</street>
+          <street>London</street>
+          <street>United Kingdom</street>
+        </postal>
+        <email>veselin.rakocevic.1@city.ac.uk</email>
+      </address>
+    </author>
+    <date day="08" month="July" year="2019"/>
+    <workgroup>Transport Area Working Group</workgroup>
+    <abstract>
+      <t>More and more of today's devices are multi-homing capable, in particular 3GPP user equipment like smartphones. In the current standardization of the next upcoming mobile network generation 5G Rel.16, this is especially targeted in the study group Access Traffic Steering Switching Splitting <xref target="TR23.793"/>. ATSSS describes the flexible selection or combination of 3GPP untrusted access like Wi-Fi and cellular access, overcoming the single-access limitation of today's devices and services. Another multi-connectivity scenario is the Hybrid Access <xref target="I-D.lhwxz-hybrid-access-network-architecture"/><xref target="I-D.muley-network-based-bonding-hybrid-access"/>, providing multiple access for CPEs, which extends the traditional way of single access connectivity at home to dual-connectivity over 3GPP and fixed access. A missing piece in the ATSSS and Hybrid Access is the access and path measurement, which is required for efficient and beneficial traffic steering decisions. This becomes particularly important in heterogeneous access networks with a multitude of volatile access paths. While MP-TCP has been proposed to be used within ATSSS, there are drawbacks when being used to encapsulate unreliable traffic as it blindly retransmits each lost frame leading to excessive delay and potential head-of-line blocking. A decision for MP-TCP though leaves the increasing share of UDP in today's traffic mix (<eref target="https://arxiv.org/abs/1801.05168"/>) unconsidered. In this document, a multi-access framework is proposed leveraging the MP-DCCP network protocol, which enables flexible traffic steering, switching and splitting also for unreliable traffic. A benefit is the support for pluggable congestion control which enables our framework to be used either independent or complementary to MP-TCP.</t>
+    </abstract>
+  </front>
+  <middle>
+    <section anchor="section-1" title="Introduction">
+      <t>Multi-connectivity access networks are evolving. Ongoing standardization at 3GPP for 5G mobile networks <xref target="TR23.793"/> or the so called Hybrid Access networks <xref target="I-D.lhwxz-hybrid-access-network-architecture"/><xref target="I-D.muley-network-based-bonding-hybrid-access"/> already provides or will enable in the near future the possibility to use multi-connectivity for a very large number of mobile users. Multi-connectivity solutions come with many user benefits including superior resilience against network outages, higher capacities for user traffic and network cost optimizations. Since multi-connectivity architectures are almost mature, new network protocols are required to fully exploit multi-connectivity and maximise its potential. In the simplest case, multi-connectivity is used for load-balancing decisions in order to balance the user flows over multiple paths. However, this has no effect on resilience or capacity gain on those load balanced individual flows. More complex scenarios include the dynamic shifting of traffic flows seamlessly between multiple paths or even aggregating those paths for leveraging the available capacity of multiple individual paths. Like <xref target="TR23.793"/> this document refers to the three distribution schemes Steering (load balancing), Switching (seamlesshandover) and Splitting (capacity aggregation).</t>
+      <t>MP-TCP <xref target="RFC6824"/> is a protocol, which can be applied in the above mentioned use cases and supports load-balancing, traffic shifting among the multiple paths and also capacity aggregation. Further, it leverages the inherent congestion control from TCP which adapts the sending rate by observing congestion signals from the network. By design, MP-TCP is limited to TCP services as it blindly re-transmits lost packets. Consequently, when MP-TCP is used as a framework for ATSSS, it may re-transmit packets sent from unreliable services such as e.g. UDP unnecessary. This may lead to head-of-line blocking and increased latency, which is detremental to real-time services. As future multi-connectivity systems must support latency sensitive traffic that might be transported over unreliable transport, it is not sufficient anymore to rely on supporting only TCP. The increasing share of UDP traffic, mainly impacted by the QUIC introduction, may significantly reduce the share from TCP. It might be expected that with HTTP/3 carried over QUIC <xref target="I-D.ietf-quic-http"/>, the previous strong dominance of TCP will be challenged by UDP.</t>
+    </section>
+    <section anchor="section-2" title="Requirements">
+      <t>A multiaccess framework shall meet the following requirements:</t>
+      <t>
+        <list style="symbols">
+          <t>IP compatibility: A multiaccess framework shall be able to transport IP packets and not make any assumptions on which transport protocol is encapsulated.</t>
+          <t>Support for unreliable traffic: A multiaccess framework should provide support for transporting unreliable traffic, such as QUIC or UDP based flows. Therefore, unreliable transmission should besupported.</t>
+          <t>Support for flexible re-ordering: A multiaccess framework should support flexible re-ordering of user traffic, including no re-ordering at all. This requirements is important to support low latency traffic, where the re-creation of packet order may negatively impact delivery latency.</t>
+          <t>Support for flexible congestion control: A multiaccess framework should support flexible congestion control, including the disabling of the congestion control, if the inner traffic is known to be congestion controlled.</t>
+          <t>Support for flexible packet scheduling: A multiaccess framework should support different packet scheduling mechanisms, which should be configurable from the control plane. Examples are cheapest path first, or other more sophisticated schedulers.</t>
+          <t>Lightweight: A multiaccess framework should be lightweight in computational resources and limit the encapsulaton overhead.</t>
+        </list>
+      </t>
+      <t>To use QUIC as part of a multiaccess framework, by for example providing multipath support for QUIC, it could be beneficial if unreliable transmission is supported as well as being able to influence or disable QUICs congestion control. In addition, it would be beneficial if the encryption of QUIC can be disabled. This is because for ATSSS, it is foreseen that the underlying tunnel from the mobile over public WLANs is baseed on IPSec.</t>
+    </section>
+    <section anchor="section-3" title="IP compatible multipath framework based on MP-DCCP">
+      <t>We propose a new multiaccess framework, which overcomes MP-TCP's restriction to TCP services and provides IP compatibility in <xref target="ref-ip-compatible-multipath-framework-based-on-mp-dccp"/>. The framework employs MP-DCCP <xref target="I-D.amend-tsvwg-multipath-dccp"/> in combination with an encapsulation scheme. For simplification, <xref target="ref-ip-compatible-multipath-framework-based-on-mp-dccp"/> assumes a traffic direction from the left (sender) to the right (receiver) and requires application in each direction for bi-directional transmission. The framework in <xref target="ref-ip-compatible-multipath-framework-based-on-mp-dccp"/> can replace or complement MP-TCP to reach IP compatibility.</t>
+      <figure anchor="ref-ip-compatible-multipath-framework-based-on-mp-dccp" title="IP compatible multipath framework based on MP-DCCP">
+        <artwork>
+Service         |&lt;-            MP-DCCP         &gt;|           Service
+or Device                                                   or Device
++-------+        ___ +-----+ DCCP Flow 1 +------+          +--------+
+|       |    _  |Seq||Path |-------------|Re-   |     _    |        |
+| Sender|___| \__\ /_|     |      :      |order |____/ |___|Receiver|
+|       | IP|_/      |Sched|      :      |      |    \_|IP |        |
+|       |   VNIF_in  |uler |-------------|engine| VNIF_out |        |
++-------+            +-----+ DCCP Flow n +------+          +--------+
+</artwork>
+      </figure>
+      <t>PDUs generated from the sender and travelling through the framework in <xref target="ref-ip-compatible-multipath-framework-based-on-mp-dccp"/> pass the components in the following order:</t>
+      <t>
+        <list style="numbers">
+          <t>Sender: Generates any PDU based on the IP protocol.</t>
+          <t>VNIF_in: IP based Virtual Network Interface as entry point to the multipath framework. A simple routing logic in front (between (1)and (2)) can act as gatekeeper and decides upon redirecting traffic through the VNIF or bypassing it. The VNIF adds an extra IP header to reach the multi-connectivity termination point.</t>
+          <t>Seq: Sequencing of the PDUs passed through (2) depending on the incoming order. Adds an incrementing number, which is later added to the DCCP encapsulation in (4).</t>
+          <t>Path Scheduler: Decision logic for scheduling sequenced PDUs over the individual connected DCCP flows for multipath transmission. The path scheduler can use the information from the DCCP flows (see (5)) inherent congestion control information like CWND, packet loss, RTT, Jitter, etc.. After selection of a DCCP flow, the PDU is encapsulated into the individual flow. Further information, at least the sequencing, is added on top as DCCP option.</t>
+          <t>DCCP Flow(s): Responsible to transmit the encapsulated PDUs to the MP-DCCP exit point.</t>
+          <t>Reorder engine: Depending on the sequencing information of (3), a re-assembly of the PDU stream can be applied. Different re-order algorithms should be supported in a configurable way, including no re-ordering.</t>
+          <t>VNIF_out: Releases PDUs that have passed the re-ordering engine and strips the DCCP specific overhead. Again, routing is responsible to deliver the PDUs to the receiver based on the destination information in the PDU.</t>
+          <t>Receiver: Receive the PDU as generated in (1).</t>
+        </list>
+      </t>
+      <t>The simple enclosing of the MP-DCCP with Virtual Network Interface (VNIF) provides the IP compatibility. However, a service or protocol classifier between sender and VNIF can reduce the scope to particular traffic, e.g. UDP, by simple routing decisions. The MP-DCCP takes over responsibility for the multi-path transfer of the traffic, which is directed through the VNIF_in. For possible re-assembly operations, the IP packets may be stamped with a continuously incremented sequence number. This is not mandatory, but assumed required in most seamless handover and capacity aggregation use cases. The path scheduler decides for each IP packet, which DCCP flow it should use for encapsulation, based on a configurable decision logic and supported by the congestion control information of the DCCP flows available for transmission. A DCCP flow selection for a PDU leads to its encapsulation into the respective DCCP flow and adding extra information required for the multipath transmission, e.g. the sequence number. Encapsulation also means, that a DCCP and IP header is added to the original PDU to reach the multi-connectivity end-point. When the encapsulated PDUs arrive at the multi-path termination point, they are re-ordered depending on the carried sequence number and a configurable logic. The re-ordering engine may also include a logic in which packets are just forwarded (no re-ordering). Re-ordering needs to be considered carefully since any active intervention changes the latency responsiveness. The multi-path termination is finally completed when the DCCP overhead is stripped and the PDU leaves VNIF_out. Further routing depends again on the IP layer of the original PDU.</t>
+    </section>
+    <section anchor="section-4" title="Application and placement">
+      <t>The framework of <xref target="ref-ip-compatible-multipath-framework-based-on-mp-dccp"/> is very flexible in applying multipath support in different architectures and allows MP-DCCP to be applied at any place between sender and receiver. <xref target="ref-sender-and-receiver-independent-mp-dccp"/> to <xref target="ref-sender-and-receiver-integrated-mp-dccp"/> provide several architectural options for the deployment of the framework.</t>
+      <figure anchor="ref-sender-and-receiver-independent-mp-dccp" title="Sender and receiver independent MP-DCCP">
+        <artwork>
+ Device       Middlebox 1        Middlebox 2       Device
++------+    +-------------+    +------------+    +--------+
+|Sender| -&gt; |MP-DCCP entry| -&gt; |MP-DCCP exit| -&gt; |Receiver|
++------+    +-------------+    +------------+    +--------+
+</artwork>
+      </figure>
+      <figure anchor="ref-sender-integrated-but-receiver-independent-mp-dccp" title="Sender integrated but receiver independent MP-DCCP">
+        <artwork>       Device                  Middlebox        Device
++----------------------+    +------------+    +--------+
+|Sender + MP-DCCP entry| -&gt; |MP-DCCP exit| -&gt; |Receiver|
++----------------------+    +------------+    +--------+
+</artwork>
+      </figure>
+      <figure anchor="ref-sender-independent-and-receiver-integrated-mp-dccp" title="Sender independent and receiver integrated MP-DCCP">
+        <artwork>
+ Device        Middlebox                 Device
++------+    +-------------+    +-----------------------+
+|Sender| -&gt; |MP-DCCP entry| -&gt; |MP-DCCP exit + Receiver|
++------+    +-------------+    +-----------------------+
+</artwork>
+      </figure>
+      <figure anchor="ref-sender-and-receiver-integrated-mp-dccp" title="Sender and receiver integrated MP-DCCP">
+        <artwork>        Device                       Device
++----------------------+    +-----------------------+
+|Sender + MP-DCCP entry| -&gt; |MP-DCCP exit + Receiver|
++----------------------+    +-----------------------+
+</artwork>
+      </figure>
+    </section>
+    <section anchor="section-5" title="Conclusion">
+      <t>The specified IP compatible multipath framework based on MP-DCCP in this document comprises several benefits:</t>
+      <t>
+        <list style="symbols">
+          <t>Pure routing</t>
+          <t>Inherent path estimation and measurement</t>
+          <t>Imposes no constraints on reliability or in-order delivery of application PDUs</t>
+          <t>Modular re-ordering</t>
+          <t>Modular scheduling</t>
+          <t>IP compatible</t>
+          <t>Based on the standardized DCCP.</t>
+        </list>
+      </t>
+      <t>Middle-box traversing, when the framework is applied in uncontrolled environments, is addressed in <xref target="RFC6733"/> and <xref target="I-D.amend-tsvwg-dccp-udp-header-conversion"/>.</t>
+    </section>
+    <section anchor="section-6" title="Security Considerations">
+      <t>[Tbd]</t>
+    </section>
+    <section anchor="section-7" title="Acknowledgments"/>
+  </middle>
+  <back>
+    <references title="Informative References">&I-D.ietf-quic-http;
+&I-D.amend-tsvwg-multipath-dccp;
+&I-D.amend-tsvwg-dccp-udp-header-conversion;
+&I-D.lhwxz-hybrid-access-network-architecture;
+&I-D.muley-network-based-bonding-hybrid-access;
+&RFC6733;
+&RFC6824;
+<reference anchor="TR23.793" target=""><front><title>Study on access traffic steering, switch and splitting support in the 5G System (5GS) architecture</title><author fullname="3GPP"/><date day="19" month="December" year="2018"/></front></reference>
+</references>
+  </back>
+</rfc>
