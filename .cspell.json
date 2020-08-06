@@ -1,0 +1,47 @@
+// cSpell Settings
+{
+    // Version of the setting file.  Always 0.1
+    "version": "0.1",
+    // language - current active spelling language
+    "language": "en_US",
+    // words - list of words to be always considered correct
+    "words": [
+       "docname",
+       "tsvwg",
+       "multipath",
+       "mpdccp",
+       "submissiontype",
+       "sortrefs",
+       "symrefs",
+       "Multipath",
+       "Markus",
+       "Bogenfeld",
+       "Eckard",
+       "Brunstrom",
+       "Karlstad",
+       "Universitetsgatan",
+       "Kassler",
+       "Andreas",
+       "Rakocevic",
+       "Veselin",
+       "quic",
+       "dccp",
+       "lhwxz",
+       "ATSSS",
+       "untrusted",
+       "CPEs",
+       "DCCP",
+       "pluggable",
+       "QUIC",
+       "multiaccess",
+       "QUICs",
+       "WLANs",
+       "TCP's",
+       "VNIF",
+       "PDUs",
+       "CWND",
+       "Middlebox",
+       "Sched",
+       "uler"
+    ]
+}
